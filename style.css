@@ -183,3 +183,79 @@ footer {
 #search-button:hover {
   background: #003070;
 }
+/* ===== Night Mode Support ===== */
+body.night-mode {
+  background: #121212;
+  color: #f1f1f1;
+}
+
+body.night-mode .app {
+  background-color: #1e1e1e;
+  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+}
+
+body.night-mode .app h1,
+body.night-mode .quiz h2 {
+  color: #f1f1f1;
+}
+
+body.night-mode .btn {
+  background: #222;
+  color: #f1f1f1;
+  border: 1px solid #555;
+}
+
+body.night-mode .btn:hover:not([disabled]) {
+  background: #6bc7f1;
+  color: #fff;
+}
+
+body.night-mode #next-btn,
+body.night-mode #back-btn {
+  background: #0d47a1;
+}
+
+body.night-mode .correct {
+  background: #06b36f;
+  color: white;
+}
+
+body.night-mode .incorrect {
+  background: #d32f2f;
+  color: white;
+}
+
+body.night-mode footer {
+  background-color: #1e1e1e;
+  color: #aaa;
+}
+
+body.night-mode #search-input {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+body.night-mode #search-button {
+  background: #0d47a1;
+}
+
+body.night-mode #search-button:hover {
+  background: #1565c0;
+}
+
+#night-mode-toggle {
+  background: #e0e0e0;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  margin: 10px auto;
+}
+
+body.night-mode #night-mode-toggle {
+  background: #444;
+  color: #fff;
+}
