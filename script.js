@@ -2123,5 +2123,16 @@ searchButton.addEventListener('click', () => {
     alert('Please enter a valid question number between 1 and ' + questions.length);
   }
 });
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("night-mode-toggle");
+
+  toggle.addEventListener("click", () => {
+    document.body.classList.toggle("night-mode");
+    toggle.textContent = document.body.classList.contains("night-mode")
+      ? "☀️ Day Mode"
+      : "🌙 Night Mode";
+  });
+});
+
 
 startQuiz();
