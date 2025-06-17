@@ -2008,9 +2008,11 @@ const nextButton = document.getElementById('next-btn');
 const backButton = document.getElementById('back-btn');
 const searchInput = document.getElementById('search-input');
 const searchButton = document.getElementById('search-button');
+const modeToggle = document.getElementById('mode-toggle');
 
 let currentQuestionIndex = 0;
 let score = 0;
+let isAnswerMode = false;
 
 function startQuiz() {
   currentQuestionIndex = 0;
@@ -2026,29 +2028,54 @@ function showQuestion() {
   const questionNo = currentQuestionIndex + 1;
   questionElement.innerHTML = questionNo + '. ' + currentQuestion.question;
 
-  const shuffledAnswers = [...currentQuestion.answers];
-  for (let i = shuffledAnswers.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
-  }
-
-  shuffledAnswers.forEach((answer) => {
-    const button = document.createElement('button');
-    button.innerHTML = answer.text;
-    button.classList.add('btn');
-
-    if (answer.correct) {
-      button.dataset.correct = answer.correct;
+  if (isAnswerMode) {
+    // Answer mode: Show all options with correct answer highlighted
+    currentQuestion.answers.forEach((answer) => {
+      const button = document.createElement('button');
+      button.innerHTML = answer.text;
+      button.classList.add('btn');
+      
+      if (answer.correct) {
+        button.classList.add('correct-answer-mode');
+      } else {
+        button.classList.add('other-answer-mode');
+      }
+      
+      button.disabled = true;
+      answerButtons.appendChild(button);
+    });
+    
+    // Always show navigation buttons in answer mode
+    nextButton.style.display = 'inline';
+    backButton.style.display = 'inline';
+  } else {
+    // Quiz mode: Show all shuffled answers
+    const shuffledAnswers = [...currentQuestion.answers];
+    for (let i = shuffledAnswers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
     }
 
-    button.addEventListener('click', selectAnswer);
-    answerButtons.appendChild(button);
-  });
+    shuffledAnswers.forEach((answer) => {
+      const button = document.createElement('button');
+      button.innerHTML = answer.text;
+      button.classList.add('btn');
+
+      if (answer.correct) {
+        button.dataset.correct = answer.correct;
+      }
+
+      button.addEventListener('click', selectAnswer);
+      answerButtons.appendChild(button);
+    });
+  }
 }
 
 function resetState() {
-  nextButton.style.display = 'none';
-  backButton.style.display = 'none';
+  if (!isAnswerMode) {
+    nextButton.style.display = 'none';
+    backButton.style.display = 'none';
+  }
 
   while (answerButtons.firstChild) {
     answerButtons.removeChild(answerButtons.firstChild);
@@ -2085,33 +2112,43 @@ function showScore() {
 }
 
 function handleNextButton() {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
-    showQuestion();
-  } else {
+  if (isAnswerMode || currentQuestionIndex < questions.length - 1) {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      showQuestion();
+    } else if (!isAnswerMode) {
+      showScore();
+    } else {
+      // In answer mode, loop back to first question
+      currentQuestionIndex = 0;
+      showQuestion();
+    }
+  } else if (!isAnswerMode && currentQuestionIndex >= questions.length) {
     showScore();
   }
 }
 
 nextButton.addEventListener('click', () => {
-  if (currentQuestionIndex < questions.length) {
-    handleNextButton();
-  } else {
+  if (!isAnswerMode && currentQuestionIndex >= questions.length) {
     startQuiz();
+  } else {
+    handleNextButton();
   }
 });
 
 function handleBackButton() {
-  currentQuestionIndex--;
-  if (currentQuestionIndex >= 0) {
+  if (isAnswerMode || currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    if (currentQuestionIndex < 0) {
+      // In answer mode, loop to last question
+      currentQuestionIndex = questions.length - 1;
+    }
     showQuestion();
   }
 }
 
 backButton.addEventListener('click', () => {
-  if (currentQuestionIndex > 0) {
-    handleBackButton();
-  }
+  handleBackButton();
 });
 
 searchButton.addEventListener('click', () => {
@@ -2123,16 +2160,36 @@ searchButton.addEventListener('click', () => {
     alert('Please enter a valid question number between 1 and ' + questions.length);
   }
 });
-document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("night-mode-toggle");
 
-  toggle.addEventListener("click", () => {
+// Mode toggle functionality
+modeToggle.addEventListener('click', () => {
+  isAnswerMode = !isAnswerMode;
+  
+  if (isAnswerMode) {
+    modeToggle.innerHTML = '📝 Quiz Mode';
+    modeToggle.title = 'Switch to Quiz Mode';
+    // Reset score when entering answer mode
+    score = 0;
+  } else {
+    modeToggle.innerHTML = '📖 Answer Mode';
+    modeToggle.title = 'Switch to Answer Mode';
+    // Reset score when entering quiz mode
+    score = 0;
+  }
+  
+  // Refresh current question with new mode
+  showQuestion();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const nightToggle = document.getElementById("night-mode-toggle");
+
+  nightToggle.addEventListener("click", () => {
     document.body.classList.toggle("night-mode");
-    toggle.textContent = document.body.classList.contains("night-mode")
+    nightToggle.textContent = document.body.classList.contains("night-mode")
       ? "☀️ Day Mode"
       : "🌙 Night Mode";
   });
 });
-
 
 startQuiz();
